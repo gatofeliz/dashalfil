@@ -15,43 +15,46 @@ class ImportLinks extends Component
     public $users;
     public $userOption;
     public $file;
+
     public function mount(){
-        $this->users=User::all();
+        $this->users = User::all()->filter->hasRole('espectador');
     }
+
     public function render()
     {
-        
         return view('livewire.import-links');
     }
-    public function save(){
+
+    public function save()
+    {
         $this->validate([
             'file' => 'required|file|mimes:csv,txt,xlsx|max:2048', // Validación del archivo
             'userOption' => 'required', // Validar que la opción de usuario esté seleccionada
         ]);
         
         // Leer el archivo Excel
-        $datos = Excel::toCollection(null, $this->file);
-        
+        $datos = Excel::toArray(null, $this->file);
+
         // Procesar las filas
         $this->mensaje = ''; // Limpiar mensaje
         $enviarDato = false;
-        
+
         foreach ($datos[0] as $fila) {
             // Saltar encabezados
-            if ($fila[0] === 'Link' || $fila[1]==='Oferta') {
+            if ($fila[0] == 'Link' || $fila[1] == 'Oferta') {
                 continue;
             }
-            if($fila[0]==null || $fila[1]==null || $fila[0]=='' || $fila[1]==''){
+            if($fila[0] == null || $fila[1] == null || $fila[0] == '' || $fila[1] == '') {
                 continue;
             }
-            
+
             Links::create([
-                'link'=>$fila[0],
-                'offer'=>$fila[1],
-                'user_id'=>$this->userOption
+                'link' => $fila[0],
+                'offer' => $fila[1],
+                'user_id' => $this->userOption
             ]);
         }
-        return redirect()->route('filament.dashboard.resources.links.index'); // Redirige a la lista de usuarios
 
+        return redirect()->route('filament.dashboard.resources.links.index'); // Redirige a la lista de usuarios
     }
 }

@@ -67,7 +67,9 @@ class LinksResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        $user = auth()->user();
+
+        $definition = $table
             ->columns([
                 TextColumn::make('user.name') // Columna basada en el campo "name"
                 ->label('Nombre') // Etiqueta que se muestra en la tabla
@@ -95,6 +97,16 @@ class LinksResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+
+        if (!$user->hasRole(['admin', 'asignador'])) {
+            $definition->modifyQueryUsing(fn (Builder $query) => 
+                $query
+                    ->withoutGlobalScopes()
+                    ->where('user_id', '=', $user->id)
+            );
+        }
+
+        return $definition;
     }
 
     public function getUserName()

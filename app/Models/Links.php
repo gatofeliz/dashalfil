@@ -8,13 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Links extends Model
 {
     use HasFactory;
+
     protected $table="links";
-    protected $fillable=[
-        'link'=>"-",
+    protected $fillable = [
+        'link',
         'offer',
         'user_id'
     ];
-    public function user(){
+
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }
